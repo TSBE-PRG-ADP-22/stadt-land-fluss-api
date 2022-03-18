@@ -34,10 +34,11 @@ jobs:
     # Deploy only on the master branch.
     # if: github.ref == 'refs/heads/main'
     steps:
-      - name: Download a single artifact
+      - name: Download production artifacts
         uses: actions/download-artifact@v3
         with:
           name: production-build
+          path: app/publish
       - name: Deploy to Heroku with Docker
         uses: gonuit/heroku-docker-deploy@v1.3.3
         with:
