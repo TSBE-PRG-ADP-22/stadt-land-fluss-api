@@ -1,5 +1,9 @@
 # Your workflow name.
-name: Deploy to heroku.
+name: Build & Deploy
+
+# Run on push to any branch.
+on:
+  push
 
 # Your workflows jobs.
 jobs:
@@ -27,6 +31,7 @@ jobs:
           path: app/publish
   deploy:
     runs-on: ubuntu-latest
+    # Deploy only on the master branch.
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Download a single artifact
