@@ -23,7 +23,7 @@ jobs:
       # - name: Test
         # run: dotnet test -c Release --no-build
       - name: Publish
-        run: dotnet publish -c Release -o /app/publish
+        run: dotnet publish -c Release -o app/publish
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
