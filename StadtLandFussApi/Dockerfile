@@ -6,7 +6,6 @@ EXPOSE 80
 EXPOSE 443
 
 COPY app/publish/ .
-RUN ls -all
 
 #ENTRYPOINT ["dotnet", "StadtLandFussApi.dll"]
 CMD ASPNETCORE_URLS=http://*:$PORT dotnet StadtLandFussApi.dll
