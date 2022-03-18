@@ -5,19 +5,8 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["StadtLandFussApi.csproj", "StadtLandFussApi/"]
-RUN dotnet restore "StadtLandFussApi/StadtLandFussApi.csproj"
-WORKDIR "/src/StadtLandFussApi"
-COPY . .
-RUN dotnet build "StadtLandFussApi.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "StadtLandFussApi.csproj" -c Release -o /app/publish
-
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=base /app/publish .
 #ENTRYPOINT ["dotnet", "StadtLandFussApi.dll"]
 CMD ASPNETCORE_URLS=http://*:$PORT dotnet StadtLandFussApi.dll
