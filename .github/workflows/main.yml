@@ -32,7 +32,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # Deploy only on the master branch.
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
       - name: Download a single artifact
         uses: actions/download-artifact@v3
