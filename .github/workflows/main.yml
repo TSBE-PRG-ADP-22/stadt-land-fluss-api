@@ -40,6 +40,8 @@ jobs:
         with:
           name: production-build
           path: app/publish
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Deploy to Heroku with Docker
         uses: gonuit/heroku-docker-deploy@v1.3.3
         with:
