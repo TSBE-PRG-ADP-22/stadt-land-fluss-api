@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-COPY . .
+COPY ../app/publish/ .
 RUN ls -all
 
 #ENTRYPOINT ["dotnet", "StadtLandFussApi.dll"]
