@@ -7,6 +7,6 @@ EXPOSE 443
 
 FROM base AS final
 WORKDIR /app
-COPY --from=base /app/publish .
+COPY --from=base app/publish .
 #ENTRYPOINT ["dotnet", "StadtLandFussApi.dll"]
 CMD ASPNETCORE_URLS=http://*:$PORT dotnet StadtLandFussApi.dll
