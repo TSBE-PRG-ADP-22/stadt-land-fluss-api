@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StadtLandFussApi", "StadtLandFussApi\StadtLandFussApi.csproj", "{A1B88C76-4117-45A3-A65C-DAE6B2BF49BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StadtLandFussApi", "StadtLandFussApi\StadtLandFussApi.csproj", "{A1B88C76-4117-45A3-A65C-DAE6B2BF49BA}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "StadtLandFuss.DockerCompose\docker-compose.dcproj", "{A51797D4-24C0-4CCB-B636-5C3974279285}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A1B88C76-4117-45A3-A65C-DAE6B2BF49BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B88C76-4117-45A3-A65C-DAE6B2BF49BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B88C76-4117-45A3-A65C-DAE6B2BF49BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A51797D4-24C0-4CCB-B636-5C3974279285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A51797D4-24C0-4CCB-B636-5C3974279285}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A51797D4-24C0-4CCB-B636-5C3974279285}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A51797D4-24C0-4CCB-B636-5C3974279285}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
