@@ -1,41 +1,48 @@
 ﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
+using StadtLandFussApi.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+var connectionString = builder.Environment.IsDevelopment()
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    : new HerokuDbConnector.HerokuDbConnector().Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto
-});
+Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder) =>
+    builder.UseNpgsql(connectionString, options => options.CommandTimeout(15))
+    .UseSnakeCaseNamingConvention();
+
+builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // do nothing now
 }
 else
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
     {
-        options.SwaggerEndpoint("./swagger/v1/swagger.json", "v1");
-        options.RoutePrefix = string.Empty;
+        ForwardedHeaders = ForwardedHeaders.XForwardedProto
     });
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("./swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty;
+});
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

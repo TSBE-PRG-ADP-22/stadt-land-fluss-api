@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  StadtLandFuss:
+    image: stadt-land-fuss-api
+    build:
+      context: .
+      dockerfile: ../StadtLandFussApi/Dockerfile
+    depends_on:
+      - postgresdb
+      
+  postgresdb:
+    container_name: stadt-land-fuss-postgres
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
