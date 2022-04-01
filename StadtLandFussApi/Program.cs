@@ -18,9 +18,16 @@ Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder
     builder.UseNpgsql(connectionString, options => options.CommandTimeout(15))
     .UseSnakeCaseNamingConvention();
 
-builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
+//builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
+builder.Services.AddDbContext<AppDbContext>(dbContextOptions);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dataContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dataContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

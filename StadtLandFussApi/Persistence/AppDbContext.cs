@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StadtLandFussApi.Models;
 using StadtLandFussApi.Persistence.Converters;
-using StadtLandFussApi.Persistence.Entities;
 
 namespace StadtLandFussApi.Persistence
 {
@@ -10,7 +10,10 @@ namespace StadtLandFussApi.Persistence
         {
         }
 
-        public DbSet<ToDo> Todoes { get; set; } = null!;
+        public DbSet<Answer> Answers { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Lobby> Lobbies { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
