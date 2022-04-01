@@ -13,7 +13,7 @@ namespace StadtLandFussApi.Models
         [JsonIgnore]
         public int Id { get; set; }
         [JsonPropertyName("Id")]
-        public int Guid { get; set; }
+        public string Guid { get; set; }
         public bool Admin { get; set; }
         public string Name { get; set; }
         [JsonIgnore]
