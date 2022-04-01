@@ -12,14 +12,14 @@ namespace StadtLandFussApi.Models
 
         [JsonIgnore]
         public int Id { get; set; }
-        [JsonPropertyName("Id")]
+        [JsonPropertyName("id")]
         public string Guid { get; set; }
         public bool Admin { get; set; }
         public string Name { get; set; }
         [JsonIgnore]
         public int LobbyId { get; set; }
         [JsonIgnore]
-        public List<Answer> Answers { get; set; }
+        public List<Answer>? Answers { get; set; }
 
         #endregion
 

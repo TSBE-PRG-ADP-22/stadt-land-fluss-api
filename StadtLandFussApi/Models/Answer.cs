@@ -13,7 +13,7 @@ namespace StadtLandFussApi.Models
         [JsonIgnore]
         public int Id { get; set; }
         public string Key { get; set; }
-        [JsonPropertyName("Answer")]
+        [JsonPropertyName("answer")]
         public string Value { get; set; }
         public int Downvotes { get; set; }
         [JsonIgnore]
