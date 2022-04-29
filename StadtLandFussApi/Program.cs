@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using StadtLandFussApi.Hubs;
 using StadtLandFussApi.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder
 
 //builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
 builder.Services.AddDbContext<AppDbContext>(dbContextOptions);
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -52,4 +54,7 @@ app.UseSwaggerUI(options =>
 
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<LobbyHub>("/user-added");
+
 app.Run();
