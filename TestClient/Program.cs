@@ -1,3 +1,3 @@
 ﻿using TestClient;
 
-await LobbyClient.ExecuteAsync();
+await LobbyClient.JoinLobby();

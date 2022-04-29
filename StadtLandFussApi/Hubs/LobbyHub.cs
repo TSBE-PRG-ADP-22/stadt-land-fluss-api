@@ -13,5 +13,15 @@ namespace StadtLandFussApi.Hubs
             }
         }
 
+        public async Task JoinLobby(string lobbyName)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, lobbyName);
+            await Clients.Group(lobbyName).SendAsync("JoinLobby", Context.User.Identity.Name + " joined.");
+        }
+
+        public Task LeaveLobby(string lobbyName)
+        {
+            return Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyName);
+        }
     }
 }
