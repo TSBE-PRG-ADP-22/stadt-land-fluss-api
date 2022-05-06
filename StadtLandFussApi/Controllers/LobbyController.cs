@@ -54,7 +54,7 @@ namespace StadtLandFussApi.Controllers
                 }
             };
             // Add the lobby to the database.
-            _context.Lobbies.Add(lobby);
+            await _context.Lobbies.AddAsync(lobby);
             await _context.SaveChangesAsync();
             // Return the newly created lobby.
             return lobby;
@@ -72,13 +72,13 @@ namespace StadtLandFussApi.Controllers
             // Create a new user without admin rights for the given lobby.
             var user = new User()
             {
-                LobbyId = _context.Lobbies.FirstOrDefaultAsync(l => l.Code == id).Id,
+                LobbyId = (await _context.Lobbies.FirstOrDefaultAsync(l => l.Code == id))!.Id,
                 Guid = Guid.NewGuid().ToString(),
                 Admin = false,
                 Name = _names[random.Next(_names.Count)]
             };
             // Add the user to the database.
-            _context.Users.Add(user);
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             // Return the newly created user.
             return user;

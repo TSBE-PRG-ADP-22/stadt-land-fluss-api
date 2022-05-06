@@ -20,6 +20,8 @@ namespace StadtLandFussApi.Models
         public int LobbyId { get; set; }
         [JsonIgnore]
         public List<Answer>? Answers { get; set; }
+        [JsonIgnore]
+        public string? ConnectionId { get; set; }
 
         #endregion
 
