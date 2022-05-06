@@ -7,7 +7,6 @@ namespace StadtLandFussApi.Models
     /// </summary>
     public class User
     {
-
         #region Properties
 
         [JsonIgnore]
@@ -24,6 +23,5 @@ namespace StadtLandFussApi.Models
         public string? ConnectionId { get; set; }
 
         #endregion
-
     }
 }

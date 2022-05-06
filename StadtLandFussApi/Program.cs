@@ -21,7 +21,7 @@ Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder
 
 //builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
 builder.Services.AddDbContext<AppDbContext>(dbContextOptions, ServiceLifetime.Transient);
-builder.Services.AddSignalR();
+builder.Services.AddSignalR().AddJsonProtocol();
 
 var app = builder.Build();
 

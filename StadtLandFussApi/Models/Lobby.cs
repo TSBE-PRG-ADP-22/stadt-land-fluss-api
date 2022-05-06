@@ -7,7 +7,6 @@ namespace StadtLandFussApi.Models
     /// </summary>
     public class Lobby
     {
-
         #region Properties
 
         [JsonIgnore]
@@ -21,6 +20,5 @@ namespace StadtLandFussApi.Models
         public Status Status { get; set; }
 
         #endregion
-
     }
 }

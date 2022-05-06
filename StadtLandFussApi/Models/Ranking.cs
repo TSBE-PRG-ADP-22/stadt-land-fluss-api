@@ -5,12 +5,10 @@
     /// </summary>
     public class Ranking
     {
-
         #region Properties
 
         public List<Rank> Rankings { get; set; }
 
         #endregion
-
     }
 }

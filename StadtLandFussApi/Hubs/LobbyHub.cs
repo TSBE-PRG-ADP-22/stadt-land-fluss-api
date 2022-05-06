@@ -33,11 +33,10 @@ namespace StadtLandFussApi.Hubs
             await _context.SaveChangesAsync();
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
             await Clients.Group(lobbyId).SendAsync("user-added", new User { Admin = user.Admin, Guid = user.Guid, Name = user.Name });
-            await Clients.All.SendAsync("user-added", "BANANA").ConfigureAwait(false);
         }
 
         [HubMethodName("game-start")]
-        public async Task GameStart()
+        public Task GameStart()
         {
             throw new NotImplementedException();
         }
@@ -81,6 +80,5 @@ namespace StadtLandFussApi.Hubs
         }
 
         #endregion
-
     }
 }

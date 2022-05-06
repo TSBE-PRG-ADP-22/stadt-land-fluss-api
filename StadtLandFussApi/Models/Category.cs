@@ -7,7 +7,6 @@ namespace StadtLandFussApi.Models
     /// </summary>
     public class Category
     {
-
         #region Properties
 
         [JsonIgnore]
@@ -17,6 +16,5 @@ namespace StadtLandFussApi.Models
         public int LobbyId { get; set; }
 
         #endregion
-
     }
 }
