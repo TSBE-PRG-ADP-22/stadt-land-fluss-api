@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using StadtLandFussApi.Models;
 using StadtLandFussApi.Persistence;
 
@@ -10,6 +11,11 @@ namespace StadtLandFussApi.Hubs
         #region Fields & Constructor
 
         private readonly AppDbContext _context;
+        private readonly List<string> _letters = new()
+        {
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z"
+        };
+        private readonly Random _random = new();
 
         public LobbyHub(AppDbContext context)
         {
@@ -36,9 +42,12 @@ namespace StadtLandFussApi.Hubs
         }
 
         [HubMethodName("game-start")]
-        public Task GameStart()
+        public async Task GameStart()
         {
-            throw new NotImplementedException();
+            var lobby = GetLobby();
+            lobby.Status = Status.InProgress;
+            await _context.SaveChangesAsync();
+            await StartRound(lobby);
         }
 
         #endregion
@@ -46,9 +55,9 @@ namespace StadtLandFussApi.Hubs
         #region Round
 
         [HubMethodName("round-finished")]
-        public async Task RoundFinished()
+        public async Task RoundFinished(string letter)
         {
-            throw new NotImplementedException();
+            await Clients.Group(GetLobby().Code!).SendAsync("round-finished", letter);
         }
 
         [HubMethodName("user-round-data")]
@@ -77,6 +86,36 @@ namespace StadtLandFussApi.Hubs
         public async Task UserReady()
         {
             throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Private Functions
+
+        public Lobby GetLobby()
+        {
+            var user = _context.Users.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            var lobby = _context.Lobbies.FirstOrDefault(l => l.Id == user.LobbyId);
+            if (lobby == null)
+            {
+                throw new Exception("Lobby not found.");
+            }
+            return lobby;
+        }
+
+        public async Task StartRound(Lobby lobby)
+        {
+            var letters = _letters;
+            var answers = await _context.Answers.Include(a => a.Category).Where(a => a.Category.LobbyId == lobby.Id).ToListAsync();
+            var excluded = letters.Except(answers.Select(a => a.Key).Distinct().ToList()).ToList();
+            var letter = excluded[_random.Next(0, excluded.Count - 1)];
+            await Clients.Group(lobby.Code!).SendAsync("round-started", letter);
+            await Task.Delay(lobby.Timelimit);
+            await Clients.Group(lobby.Code!).SendAsync("round-finished", letter);
         }
 
         #endregion
