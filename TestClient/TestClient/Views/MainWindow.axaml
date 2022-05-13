@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:TestClient.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="TestClient.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="TestClient">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    <Panel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+        <SplitView IsPaneOpen="True"
+           DisplayMode="Inline"
+           OpenPaneLength="296">
+            <SplitView.Pane>
+                <StackPanel Margin="0,20" Spacing="10">
+                    <Button HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="160" Command="{Binding ConnectCommand}">Connect</Button>
+                    <Button HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="160" Command="{Binding DisconnectCommand}">Disconnect</Button>
+                    <TextBox HorizontalAlignment="Center" Width="160" Text="{Binding LobbyId}" Watermark="Lobby id"></TextBox>
+                    <TextBox HorizontalAlignment="Center" Width="160" Text="{Binding UserId}" Watermark="User id"></TextBox>
+                    <Button HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="160" Command="{Binding JoinLobbyCommand}">Join lobby</Button>
+                    <TextBlock HorizontalAlignment="Center" Text="{Binding Greeting}" ></TextBlock>
+                </StackPanel>
+            </SplitView.Pane>
+            <Grid>
+                <Rectangle Fill="Red" Height="100" VerticalAlignment="Top"/>
+                <Rectangle Fill="Blue" Width="100" HorizontalAlignment="Right" />
+                <Rectangle Fill="Green" Height="100" VerticalAlignment="Bottom"/>
+                <Rectangle Fill="Orange" Width="100" HorizontalAlignment="Left"/>
+            </Grid>
+        </SplitView>
+    </Panel>
+</Window>

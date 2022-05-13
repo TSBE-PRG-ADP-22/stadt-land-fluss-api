@@ -7,7 +7,6 @@ namespace StadtLandFussApi.Models
     /// </summary>
     public class Answer
     {
-
         #region Properties
 
         [JsonIgnore]
@@ -23,6 +22,5 @@ namespace StadtLandFussApi.Models
         public Category Category { get; set; }
 
         #endregion
-
     }
 }

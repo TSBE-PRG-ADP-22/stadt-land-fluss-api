@@ -20,8 +20,16 @@ Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder
     .UseSnakeCaseNamingConvention();
 
 //builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
-builder.Services.AddDbContext<AppDbContext>(dbContextOptions);
-builder.Services.AddSignalR();
+builder.Services.AddDbContext<AppDbContext>(dbContextOptions, ServiceLifetime.Transient);
+builder.Services.AddSignalR().AddJsonProtocol();
+
+builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
+{
+    builder
+    .WithOrigins("http://localhost:3000")
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+}));
 
 
 builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
@@ -64,6 +72,6 @@ app.UseSwaggerUI(options =>
 app.UseAuthorization();
 app.MapControllers();
 
-app.MapHub<LobbyHub>("/user-added");
+app.MapHub<LobbyHub>("/lobby-hub");
 
 app.Run();

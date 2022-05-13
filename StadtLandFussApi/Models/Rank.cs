@@ -5,13 +5,11 @@
     /// </summary>
     public class Rank
     {
-
         #region Properties
 
         public User User { get; set; }
         public int Points { get; set; }
 
         #endregion
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace StadtLandFussApi.Models
 {
@@ -7,7 +8,6 @@ namespace StadtLandFussApi.Models
     /// </summary>
     public class User
     {
-
         #region Properties
 
         [JsonIgnore]
@@ -20,8 +20,11 @@ namespace StadtLandFussApi.Models
         public int LobbyId { get; set; }
         [JsonIgnore]
         public List<Answer>? Answers { get; set; }
+        [JsonIgnore]
+        public string? ConnectionId { get; set; }
+        [NotMapped]
+        public bool IsCurrentUser { get; set; }
 
         #endregion
-
     }
 }
