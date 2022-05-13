@@ -5,10 +5,6 @@ using StadtLandFussApi.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAnyOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -55,7 +51,6 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("./swagger/v1/swagger.json", "v1");
     options.RoutePrefix = string.Empty;
 });
-app.UseCors("AllowAnyOrigin");
 
 app.UseAuthorization();
 app.MapControllers();
