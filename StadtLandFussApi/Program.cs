@@ -23,6 +23,14 @@ Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder
 builder.Services.AddDbContext<AppDbContext>(dbContextOptions);
 builder.Services.AddSignalR();
 
+
+builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
+{
+    builder.AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+}));
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -45,6 +53,7 @@ else
     app.UseHttpsRedirection();
 }
 
+app.UseCors("ServicePolicy");
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
