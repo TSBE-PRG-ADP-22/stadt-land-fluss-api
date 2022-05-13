@@ -29,7 +29,7 @@ namespace StadtLandFussApi.Hubs
         [HubMethodName("join-lobby")]
         public async Task JoinLobby(string userId, string lobbyId)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Guid == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Guid == userId);
             if (user == null)
             {
                 throw new Exception("User not found.");
@@ -44,7 +44,7 @@ namespace StadtLandFussApi.Hubs
         [HubMethodName("game-start")]
         public async Task GameStart()
         {
-            var lobby = GetLobby();
+            var lobby = await GetLobby();
             lobby.Status = Status.InProgress;
             await _context.SaveChangesAsync();
             await StartRound(lobby);
@@ -57,13 +57,24 @@ namespace StadtLandFussApi.Hubs
         [HubMethodName("round-finished")]
         public async Task RoundFinished(string letter)
         {
-            await Clients.Group(GetLobby().Code!).SendAsync("round-finished", letter);
+            await Clients.Group((await GetLobby()).Code!).SendAsync("round-finished", letter);
         }
 
         [HubMethodName("user-round-data")]
-        public async Task UserRoundData(UserRound userRound)
+        public async Task UserRoundData(List<Answer> answers)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.Include(u => u.Answers).FirstOrDefaultAsync(u => u.ConnectionId == Context.ConnectionId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            if (user.Answers == null)
+            {
+                user.Answers = new();
+            }
+            user.Answers.AddRange(answers);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
         }
 
         #endregion
@@ -92,14 +103,24 @@ namespace StadtLandFussApi.Hubs
 
         #region Private Functions
 
-        public Lobby GetLobby()
+        private async Task<Answer> GetAnswer(string guid, string value)
         {
-            var user = _context.Users.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
+            var answer = await _context.Answers.Include(a => a.Category).FirstOrDefaultAsync(a => a.Key == guid && a.Value == value);
+            if (answer == null)
+            {
+                throw new Exception("Answer not found.");
+            }
+            return answer;
+        }
+
+        private async Task<Lobby> GetLobby()
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.ConnectionId == Context.ConnectionId);
             if (user == null)
             {
                 throw new Exception("User not found.");
             }
-            var lobby = _context.Lobbies.FirstOrDefault(l => l.Id == user.LobbyId);
+            var lobby = await _context.Lobbies.FirstOrDefaultAsync(l => l.Id == user.LobbyId);
             if (lobby == null)
             {
                 throw new Exception("Lobby not found.");
@@ -107,7 +128,7 @@ namespace StadtLandFussApi.Hubs
             return lobby;
         }
 
-        public async Task StartRound(Lobby lobby)
+        private async Task StartRound(Lobby lobby)
         {
             var letters = _letters;
             var answers = await _context.Answers.Include(a => a.Category).Where(a => a.Category.LobbyId == lobby.Id).ToListAsync();
