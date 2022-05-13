@@ -32,14 +32,6 @@ builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
     .AllowCredentials();
 }));
 
-
-builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
-{
-    builder.AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader();
-}));
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
