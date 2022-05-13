@@ -1,18 +1,16 @@
-﻿using System;
-using System.Reactive;
+﻿using System.Reactive;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using TestClient.Models;
+using TestClient.Services;
 
 namespace TestClient.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     {
-        private HubConnection? HubConnection { get; set; }
+        private readonly ILobbyService _lobbyService;
+        private readonly ILobbyHubService _lobbyHubService;
 
         [Reactive] public string LobbyId { get; set; } = "e97be7b7";
         [Reactive] public string UserId { get; set; } = "24ef415c-2ae8-464d-b958-13f105cf4aef";
@@ -22,8 +20,11 @@ namespace TestClient.ViewModels
         public ReactiveCommand<Unit, Unit> DisconnectCommand { get; }
         public ReactiveCommand<Unit, Unit> JoinLobbyCommand { get; }
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(ILobbyService lobbyService, ILobbyHubService lobbyHubService)
         {
+            _lobbyService = lobbyService;
+            _lobbyHubService = lobbyHubService;
+
             ConnectCommand = ReactiveCommand.CreateFromTask(Connect);
             DisconnectCommand = ReactiveCommand.CreateFromTask(Disconnect);
             JoinLobbyCommand = ReactiveCommand.CreateFromTask(JoinLobby);
@@ -31,41 +32,41 @@ namespace TestClient.ViewModels
 
         private async Task Connect()
         {
-            var uri = "http://localhost:8080/lobby-hub";
-            HubConnection = new HubConnectionBuilder()
-                .AddJsonProtocol()
-                .WithUrl(uri)
-                .WithAutomaticReconnect()
-                .ConfigureLogging(logging =>
-                {
-                    logging.SetMinimumLevel(LogLevel.Information);
-                    logging.AddConsole();
-                })
-                .Build();
+            //var uri = "http://localhost:8080/lobby-hub";
+            //HubConnection = new HubConnectionBuilder()
+            //    .AddJsonProtocol()
+            //    .WithUrl(uri)
+            //    .WithAutomaticReconnect()
+            //    .ConfigureLogging(logging =>
+            //    {
+            //        logging.SetMinimumLevel(LogLevel.Information);
+            //        logging.AddConsole();
+            //    })
+            //    .Build();
 
-            HubConnection.Closed += (error) => { Console.WriteLine(error?.Message); return Task.CompletedTask; };
+            //HubConnection.Closed += (error) => { Console.WriteLine(error?.Message); return Task.CompletedTask; };
 
-            HubConnection.On<User>("user-added", (user) =>
-            {
-                Greeting = user?.Name ?? string.Empty;
-            });
+            //HubConnection.On<User>("user-added", (user) =>
+            //{
+            //    Greeting = user?.Name ?? string.Empty;
+            //});
 
-            await HubConnection.StartAsync();
+            //await HubConnection.StartAsync();
         }
 
         private async Task Disconnect()
         {
-            if (HubConnection != null)
+            if (_lobbyHubService.HubConnection != null)
             {
-                await HubConnection.StopAsync();
+                await _lobbyHubService.HubConnection.StopAsync();
             }
         }
 
         private async Task JoinLobby()
         {
-            if (HubConnection != null)
+            if (_lobbyHubService.HubConnection != null)
             {
-                await HubConnection.SendAsync("join-lobby", UserId, LobbyId);
+                await _lobbyHubService.HubConnection.SendAsync("join-lobby", UserId, LobbyId);
             }
         }
     }
