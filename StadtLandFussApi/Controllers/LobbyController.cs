@@ -53,6 +53,8 @@ namespace StadtLandFussApi.Controllers
                     Name = _names[random.Next(_names.Count)]
                 }
             };
+            // Set the start status.
+            lobby.Status = Status.Pending;
             // Add the lobby to the database.
             await _context.Lobbies.AddAsync(lobby);
             await _context.SaveChangesAsync();
@@ -64,24 +66,32 @@ namespace StadtLandFussApi.Controllers
         /// Creates a new user in the database for a lobby without admin rights.
         /// </summary>
         /// <param name="user">The user with the lobby id </param>
-        /// <returns></returns>
+        /// <returns>The current lobby with all users in it.</returns>
         [HttpPost("{id}/user")]
-        public async Task<ActionResult<User>> Post(string id)
+        public async Task<ActionResult<Lobby>> Post(string id)
         {
             var random = new Random();
+            var lobby = await _context.Lobbies.FirstOrDefaultAsync(l => l.Code == id);
+            var guid = Guid.NewGuid().ToString();
             // Create a new user without admin rights for the given lobby.
             var user = new User()
             {
-                LobbyId = (await _context.Lobbies.FirstOrDefaultAsync(l => l.Code == id))!.Id,
-                Guid = Guid.NewGuid().ToString(),
+                LobbyId = lobby!.Id,
+                Guid = guid,
                 Admin = false,
                 Name = _names[random.Next(_names.Count)]
             };
             // Add the user to the database.
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
-            // Return the newly created user.
-            return user;
+            // Get the updated lobby with all users.
+            lobby = await _context.Lobbies.Include(l => l.Users).Include(l => l.Categories).FirstOrDefaultAsync(l => l.Code == id);
+            // Mark the current user as such.
+            var current = lobby!.Users!.FirstOrDefault(u => u.Guid == guid);
+            current!.IsCurrentUser = true;
+            lobby.Users![lobby.Users.IndexOf(current)] = current;
+            // Return the lobby.
+            return lobby;
         }
 
     }
