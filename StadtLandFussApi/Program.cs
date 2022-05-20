@@ -26,7 +26,7 @@ builder.Services.AddSignalR().AddJsonProtocol();
 builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
 {
     builder
-    .WithOrigins("http://localhost:3000")
+    .WithOrigins("http://localhost:3000", "https://stadt-land-fluss-ui.herokuapp.com")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials();
