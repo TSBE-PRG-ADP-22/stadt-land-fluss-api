@@ -11,19 +11,16 @@ namespace TestClient.DependencyInjection
 {
     public static class ViewModelsBootstrapper
     {
-        private const string APIURL = "http://localhost:8080";
-
-        public static void RegisterViewModels(IMutableDependencyResolver services, IReadonlyDependencyResolver resolver)
+        public static void RegisterViewModels(IMutableDependencyResolver services, IReadonlyDependencyResolver resolver, ClientConfiguration clientConfig)
         {
-            RegisterServices(services, resolver);
+            RegisterServices(services, resolver, clientConfig);
             RegisterCommonViewModels(services, resolver);
         }
 
-        private static void RegisterServices(IMutableDependencyResolver services, IReadonlyDependencyResolver resolver)
+        private static void RegisterServices(IMutableDependencyResolver services, IReadonlyDependencyResolver resolver, ClientConfiguration clientConfig)
         {
-            services.RegisterLazySingleton(() => GetRefitService<ILobbyService>(new Uri(APIURL)));
-            services.RegisterLazySingleton<ILobbyHubService>(() => new LobbyHubService());
-
+            services.RegisterLazySingleton(() => GetRefitService<ILobbyService>(new Uri(clientConfig.BaseUrl)));
+            services.RegisterLazySingleton<ILobbyHubService>(() => new LobbyHubService(clientConfig));
         }
 
         private static void RegisterCommonViewModels(IMutableDependencyResolver services, IReadonlyDependencyResolver resolver)
@@ -56,7 +53,7 @@ namespace TestClient.DependencyInjection
                 {
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    Converters = { new JsonStringEnumConverter() }
+                    //Converters = { new JsonStringEnumConverter() }
                 });
         }
 

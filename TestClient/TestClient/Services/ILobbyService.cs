@@ -8,7 +8,7 @@ namespace TestClient.Services
     public interface ILobbyService
     {
         [Post("/lobby")]
-        public Task<Lobby> CreateLobby();
+        public Task<Lobby> CreateLobby([Body] Lobby lobby);
 
         [Post("/lobby/{id}/user")]
         public Task<User> CreateUser(string id);
