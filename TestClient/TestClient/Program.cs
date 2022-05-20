@@ -15,7 +15,7 @@ namespace TestClient
         [STAThread]
         public static void Main(string[] args)
         {
-            Bootstrapper.Register(Locator.CurrentMutable, Locator.Current);
+            Bootstrapper.Register(Locator.CurrentMutable, Locator.Current, new ClientConfiguration());
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
 
