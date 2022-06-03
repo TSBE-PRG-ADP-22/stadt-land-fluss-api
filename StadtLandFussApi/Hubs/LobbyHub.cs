@@ -103,8 +103,9 @@ namespace StadtLandFussApi.Hubs
         #region Review 
 
         [HubMethodName("answer-disliked")]
-        public async Task AnswerDisliked(Answer answer, string userId)
+        public async Task AnswerDisliked(string param1, string userId)
         {
+            var answer = JsonSerializer.Deserialize<Answer>(param1)!;
             var result = await GetAnswer(userId, answer.Category.Name, answer.Value);
             result.Downvotes++;
             _context.Update(result);
@@ -113,8 +114,9 @@ namespace StadtLandFussApi.Hubs
         }
 
         [HubMethodName("answer-liked")]
-        public async Task AnswerLiked(Answer answer, string userId)
+        public async Task AnswerLiked(string param1, string userId)
         {
+            var answer = JsonSerializer.Deserialize<Answer>(param1)!;
             var result = await GetAnswer(userId, answer.Category.Name, answer.Value);
             result.Downvotes--;
             _context.Update(result);
