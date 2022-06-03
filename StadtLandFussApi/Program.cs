@@ -28,7 +28,7 @@ Action<IServiceProvider, DbContextOptionsBuilder> dbContextOptions = (_, builder
 
 //builder.Services.AddPooledDbContextFactory<AppDbContext>(dbContextOptions, poolSize: 20);
 builder.Services.AddDbContext<AppDbContext>(dbContextOptions, ServiceLifetime.Transient);
-builder.Services.AddSignalR().AddJsonProtocol();
+builder.Services.AddSignalR(options => options.EnableDetailedErrors = true).AddJsonProtocol();
 
 builder.Services.AddCors(o => o.AddPolicy("ServicePolicy", builder =>
 {

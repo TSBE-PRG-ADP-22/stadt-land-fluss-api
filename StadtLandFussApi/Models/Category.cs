@@ -9,8 +9,9 @@ namespace StadtLandFussApi.Models
     {
         #region Properties
 
-        [JsonIgnore]
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+        [JsonPropertyName("name")]
         public string Name { get; set; }
         [JsonIgnore]
         public int LobbyId { get; set; }
