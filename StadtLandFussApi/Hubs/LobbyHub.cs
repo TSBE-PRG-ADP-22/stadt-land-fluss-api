@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StadtLandFussApi.Helper;
 using StadtLandFussApi.Models;
 using StadtLandFussApi.Persistence;
+using System.Text.Json;
 
 namespace StadtLandFussApi.Hubs
 {
@@ -61,8 +62,9 @@ namespace StadtLandFussApi.Hubs
         }
 
         [HubMethodName("user-round-data")]
-        public async Task UserRoundData(List<Answer> answers)
+        public async Task UserRoundData(string param1)
         {
+            var answers = JsonSerializer.Deserialize<List<Answer>>(param1)!;
             var user = await _context.Users.Include(u => u.Answers).FirstOrDefaultAsync(u => u.ConnectionId == Context.ConnectionId);
             if (user == null)
             {
@@ -71,6 +73,10 @@ namespace StadtLandFussApi.Hubs
             if (user.Answers == null)
             {
                 user.Answers = new();
+            }
+            foreach (var answer in answers)
+            {
+                answer.Category = await _context.Categories.FirstAsync(c => c.Id == answer.Category!.Id);
             }
             user.Answers.AddRange(answers);
             _context.Users.Update(user);
