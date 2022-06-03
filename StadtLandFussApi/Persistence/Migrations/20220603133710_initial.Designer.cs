@@ -11,8 +11,8 @@ using StadtLandFussApi.Persistence;
 namespace StadtLandFussApi.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220506134352_user_connection_id")]
-    partial class user_connection_id
+    [Migration("20220603133710_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -106,6 +106,10 @@ namespace StadtLandFussApi.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("code");
 
+                    b.Property<int>("PlayedRounds")
+                        .HasColumnType("integer")
+                        .HasColumnName("played_rounds");
+
                     b.Property<int>("Rounds")
                         .HasColumnType("integer")
                         .HasColumnName("rounds");
@@ -154,6 +158,10 @@ namespace StadtLandFussApi.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<bool>("Ready")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ready");
 
                     b.HasKey("Id")
                         .HasName("pk_users");

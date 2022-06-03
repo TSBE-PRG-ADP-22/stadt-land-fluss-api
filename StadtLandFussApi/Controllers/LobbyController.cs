@@ -58,6 +58,8 @@ namespace StadtLandFussApi.Controllers
             // Add the lobby to the database.
             await _context.Lobbies.AddAsync(lobby);
             await _context.SaveChangesAsync();
+            // Mark the current user (the one who created the lobby) as such.
+            lobby.Users[0].IsCurrentUser = true;
             // Return the newly created lobby.
             return lobby;
         }

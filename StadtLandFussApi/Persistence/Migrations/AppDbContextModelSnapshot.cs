@@ -104,6 +104,10 @@ namespace StadtLandFussApi.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("code");
 
+                    b.Property<int>("PlayedRounds")
+                        .HasColumnType("integer")
+                        .HasColumnName("played_rounds");
+
                     b.Property<int>("Rounds")
                         .HasColumnType("integer")
                         .HasColumnName("rounds");
@@ -152,6 +156,10 @@ namespace StadtLandFussApi.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<bool>("Ready")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ready");
 
                     b.HasKey("Id")
                         .HasName("pk_users");
