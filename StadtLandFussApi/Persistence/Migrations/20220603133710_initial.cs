@@ -15,8 +15,9 @@ namespace StadtLandFussApi.Persistence.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    code = table.Column<string>(type: "text", nullable: false),
+                    code = table.Column<string>(type: "text", nullable: true),
                     rounds = table.Column<int>(type: "integer", nullable: false),
+                    played_rounds = table.Column<int>(type: "integer", nullable: false),
                     timelimit = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -67,7 +68,9 @@ namespace StadtLandFussApi.Persistence.Migrations
                     guid = table.Column<string>(type: "text", nullable: false),
                     admin = table.Column<bool>(type: "boolean", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
-                    lobby_id = table.Column<int>(type: "integer", nullable: false)
+                    ready = table.Column<bool>(type: "boolean", nullable: false),
+                    lobby_id = table.Column<int>(type: "integer", nullable: false),
+                    connection_id = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

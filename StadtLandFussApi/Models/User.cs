@@ -17,6 +17,8 @@ namespace StadtLandFussApi.Models
         public bool Admin { get; set; }
         public string Name { get; set; }
         [JsonIgnore]
+        public bool Ready { get; set; }
+        [JsonIgnore]
         public int LobbyId { get; set; }
         [JsonIgnore]
         public List<Answer>? Answers { get; set; }

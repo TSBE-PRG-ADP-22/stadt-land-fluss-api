@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using StadtLandFussApi.Helper;
 using StadtLandFussApi.Models;
 using StadtLandFussApi.Persistence;
 
@@ -15,7 +16,6 @@ namespace StadtLandFussApi.Hubs
         {
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z"
         };
-        private readonly Random _random = new();
 
         public LobbyHub(AppDbContext context)
         {
@@ -75,6 +75,21 @@ namespace StadtLandFussApi.Hubs
             user.Answers.AddRange(answers);
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
+            var lobby = await GetLobby();
+            if (lobby == null)
+            {
+                throw new Exception("Lobby not found.");
+            }
+            if (await _context.Users.Include(u => u.Answers).Where(u => u.LobbyId == lobby.Id).AllAsync(u => u.Answers != null && u.Answers.Any(a => a.Key == answers.First().Key)))
+            {
+                await Clients.Group(lobby.Code!).SendAsync("round-info", await _context.Users.Include(u => u.Answers)
+                    .Where(u => u.LobbyId == lobby.Id)
+                    .Select(u => new UserRound()
+                    {
+                        Answers = u.Answers!.Where(a => a.Key == answers.First().Key).ToList(),
+                        User = u
+                    }).ToListAsync());
+            }
         }
 
         #endregion
@@ -82,30 +97,80 @@ namespace StadtLandFussApi.Hubs
         #region Review 
 
         [HubMethodName("answer-disliked")]
-        public async Task AnswerDisliked(Answer answer)
+        public async Task AnswerDisliked(Answer answer, string userId)
         {
-            throw new NotImplementedException();
+            var result = await GetAnswer(userId, answer.Category.Name, answer.Value);
+            result.Downvotes++;
+            _context.Update(result);
+            await _context.SaveChangesAsync();
+            await Clients.Group((await GetLobby()).Code!).SendAsync("answer-disliked", result);
         }
 
         [HubMethodName("answer-liked")]
-        public async Task AnswerLiked(Answer answer)
+        public async Task AnswerLiked(Answer answer, string userId)
         {
-            throw new NotImplementedException();
+            var result = await GetAnswer(userId, answer.Category.Name, answer.Value);
+            result.Downvotes--;
+            _context.Update(result);
+            await _context.SaveChangesAsync();
+            await Clients.Group((await GetLobby()).Code!).SendAsync("answer-liked", result);
         }
 
         [HubMethodName("user-ready")]
         public async Task UserReady()
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.Include(u => u.Answers).FirstOrDefaultAsync(u => u.ConnectionId == Context.ConnectionId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            user.Ready = true;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            var lobby = await GetLobby();
+            await Clients.Group(lobby.Code!).SendAsync("user-ready", user);
+            var users = await _context.Users.Include(u => u.Answers).Where(u => u.LobbyId == lobby.Id).ToListAsync();
+            if (users.All(u => u.Ready))
+            {
+                foreach (var u in users)
+                {
+                    u.Ready = false;
+                    _context.Users.Update(user);
+                }
+                await _context.SaveChangesAsync();
+                if (lobby.PlayedRounds == lobby.Rounds)
+                {
+                    lobby.Status = Status.Finished;
+                    _context.Lobbies.Update(lobby);
+                    await _context.SaveChangesAsync();
+                    await Clients.Group(lobby.Code!).SendAsync("game-finished", new Ranking()
+                    {
+                        Rankings = users.Select(u => new Rank()
+                        {
+                            User = u,
+                            Points = CalculatePoints(u.Answers!, users)
+                        }).ToList()
+                    });
+                }
+                else
+                {
+                    await StartRound(lobby);
+                }
+            }
         }
 
         #endregion
 
         #region Private Functions
 
-        private async Task<Answer> GetAnswer(string guid, string value)
+        private async Task<Answer> GetAnswer(string userGuid, string categoryName, string value)
         {
-            var answer = await _context.Answers.Include(a => a.Category).FirstOrDefaultAsync(a => a.Key == guid && a.Value == value);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Guid == userGuid);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            var answer = await _context.Answers.Include(a => a.Category).FirstOrDefaultAsync(a => a.UserId == user.Id && a.Value == value && a.Category.Name == categoryName);
             if (answer == null)
             {
                 throw new Exception("Answer not found.");
@@ -133,10 +198,42 @@ namespace StadtLandFussApi.Hubs
             var letters = _letters;
             var answers = await _context.Answers.Include(a => a.Category).Where(a => a.Category.LobbyId == lobby.Id).ToListAsync();
             var excluded = letters.Except(answers.Select(a => a.Key).Distinct().ToList()).ToList();
-            var letter = excluded[_random.Next(0, excluded.Count - 1)];
+            var letter = excluded.PickRandom();
+            lobby.PlayedRounds++;
+            _context.Lobbies.Update(lobby);
+            await _context.SaveChangesAsync();
             await Clients.Group(lobby.Code!).SendAsync("round-started", letter);
-            await Task.Delay(lobby.Timelimit);
-            await Clients.Group(lobby.Code!).SendAsync("round-finished", letter);
+            if (lobby.Timelimit > 0)
+            {
+                await Task.Delay(lobby.Timelimit);
+                await Clients.Group(lobby.Code!).SendAsync("round-finished", letter);
+            }
+        }
+
+        private static int CalculatePoints(List<Answer> answers, List<User> users)
+        {
+            var total = 0;
+            foreach (var answer in answers)
+            {
+                users = users.Where(u => u.Id != answer.UserId).ToList();
+                if (answer.Downvotes > ((users.Count + 1) / 2))
+                {
+                    break;
+                }
+                else if (users.Any(u => u.Answers != null && u.Answers.Where(a => a.Key == answer.Key && a.CategoryId == answer.CategoryId && a.Downvotes <= ((users.Count + 1) / 2)).Any(a => a.Value.ToLower() == answer.Value.ToLower())))
+                {
+                    total += 5;
+                }
+                else if (users.Any(u => u.Answers == null || !u.Answers.Any(a => a.Key == answer.Key && answer.Downvotes <= ((users.Count + 1) / 2))))
+                {
+                    total += 20;
+                }
+                else
+                {
+                    total += 10;
+                }
+            }
+            return total;
         }
 
         #endregion
