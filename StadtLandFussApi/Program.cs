@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StadtLandFussApi.Hubs;
 using StadtLandFussApi.Persistence;
@@ -7,7 +8,11 @@ using StadtLandFussApi.Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new ProducesAttribute("application/json"));
+    options.Filters.Add(new ConsumesAttribute("application/json"));
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -57,11 +62,13 @@ else
 }
 
 app.UseCors("ServicePolicy");
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("./swagger/v1/swagger.json", "v1");
     options.RoutePrefix = string.Empty;
+    options.InjectStylesheet("/swagger-ui/SwaggerDark.css");
 });
 
 app.UseAuthorization();
