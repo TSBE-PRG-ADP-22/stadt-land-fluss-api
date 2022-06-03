@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using StadtLandFussApi.Helper;
 using StadtLandFussApi.Models;
 using StadtLandFussApi.Persistence;
 
@@ -7,24 +8,43 @@ namespace StadtLandFussApi.Controllers
 {
     [ApiController]
     [Route("lobby")]
-    public class LobbyController
+    public class LobbyController : ControllerBase
     {
-
         private readonly AppDbContext _context;
-        private readonly List<string> _names = new()
+        private static readonly List<string> _names = new()
         {
             "Donkey",
-            "Dario",
             "Jan",
             "Kieran",
+            "Dario",
             "Josh",
             "Liam",
             "Matt",
             "Sam",
             "Björn",
-            "Bob",
             "Jonathan",
-            "Keanu"
+            "Keanu",
+            "Liam",
+            "Olivia",
+            "Bob",
+            "Noah",
+            "Emma",
+            "Tom",
+            "Charlotte",
+            "Elijah",
+            "Amelia",
+            "James",
+            "Ava",
+            "William",
+            "Sophia",
+            "Benjamin",
+            "Isabella",
+            "Lucas",
+            "Mia",
+            "Henr",
+            "Evelyn",
+            "Theodore",
+            "Harper"
         };
 
         public LobbyController(AppDbContext context)
@@ -39,7 +59,10 @@ namespace StadtLandFussApi.Controllers
         /// <param name="lobby">The lobby to add to the database.</param>
         /// <returns>The freshly created lobby from the database.</returns>
         [HttpPost]
-        public async Task<ActionResult<Lobby>> Post(Lobby lobby)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Lobby))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Post(Lobby lobby)
         {
             // Generate a lobby code.
             lobby.Code = Guid.NewGuid().ToString()[..8];
@@ -50,7 +73,7 @@ namespace StadtLandFussApi.Controllers
                 {
                     Guid = Guid.NewGuid().ToString(),
                     Admin = true,
-                    Name = _names[random.Next(_names.Count)]
+                    Name = await GetRandomUsername(lobby)
                 }
             };
             // Set the start status.
@@ -61,7 +84,7 @@ namespace StadtLandFussApi.Controllers
             // Mark the current user (the one who created the lobby) as such.
             lobby.Users[0].IsCurrentUser = true;
             // Return the newly created lobby.
-            return lobby;
+            return Ok(lobby);
         }
 
         /// <summary>
@@ -70,7 +93,10 @@ namespace StadtLandFussApi.Controllers
         /// <param name="user">The user with the lobby id </param>
         /// <returns>The current lobby with all users in it.</returns>
         [HttpPost("{id}/user")]
-        public async Task<ActionResult<Lobby>> Post(string id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Lobby))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Post(string id)
         {
             var random = new Random();
             var lobby = await _context.Lobbies.FirstOrDefaultAsync(l => l.Code == id);
@@ -81,7 +107,7 @@ namespace StadtLandFussApi.Controllers
                 LobbyId = lobby!.Id,
                 Guid = guid,
                 Admin = false,
-                Name = _names[random.Next(_names.Count)]
+                Name = await GetRandomUsername(lobby)
             };
             // Add the user to the database.
             await _context.Users.AddAsync(user);
@@ -93,8 +119,16 @@ namespace StadtLandFussApi.Controllers
             current!.IsCurrentUser = true;
             lobby.Users![lobby.Users.IndexOf(current)] = current;
             // Return the lobby.
-            return lobby;
+            return Ok(lobby);
         }
 
+        private async Task<string> GetRandomUsername(Lobby lobby)
+        {
+            var usernameList = await _context.Users.Where(l => l.LobbyId == lobby.Id).Select(x => x.Name).ToListAsync();
+            var excluded = _names.Except(usernameList).ToList();
+            var username = excluded.PickRandom();
+
+            return username;
+        }
     }
 }

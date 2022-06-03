@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using StadtLandFussApi.Helper;
 using StadtLandFussApi.Models;
 using StadtLandFussApi.Persistence;
 
@@ -15,7 +16,6 @@ namespace StadtLandFussApi.Hubs
         {
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z"
         };
-        private readonly Random _random = new();
 
         public LobbyHub(AppDbContext context)
         {
@@ -84,9 +84,10 @@ namespace StadtLandFussApi.Hubs
             {
                 await Clients.Group(lobby.Code!).SendAsync("round-info", await _context.Users.Include(u => u.Answers)
                     .Where(u => u.LobbyId == lobby.Id)
-                    .Select(u => new UserRound() { 
-                        Answers = u.Answers!.Where(a => a.Key == answers.First().Key).ToList(), 
-                        User = u 
+                    .Select(u => new UserRound()
+                    {
+                        Answers = u.Answers!.Where(a => a.Key == answers.First().Key).ToList(),
+                        User = u
                     }).ToListAsync());
             }
         }
@@ -142,7 +143,8 @@ namespace StadtLandFussApi.Hubs
                     lobby.Status = Status.Finished;
                     _context.Lobbies.Update(lobby);
                     await _context.SaveChangesAsync();
-                    await Clients.Group(lobby.Code!).SendAsync("game-finished", new Ranking() {
+                    await Clients.Group(lobby.Code!).SendAsync("game-finished", new Ranking()
+                    {
                         Rankings = users.Select(u => new Rank()
                         {
                             User = u,
@@ -196,7 +198,7 @@ namespace StadtLandFussApi.Hubs
             var letters = _letters;
             var answers = await _context.Answers.Include(a => a.Category).Where(a => a.Category.LobbyId == lobby.Id).ToListAsync();
             var excluded = letters.Except(answers.Select(a => a.Key).Distinct().ToList()).ToList();
-            var letter = excluded[_random.Next(0, excluded.Count - 1)];
+            var letter = excluded.PickRandom();
             lobby.PlayedRounds++;
             _context.Lobbies.Update(lobby);
             await _context.SaveChangesAsync();
@@ -217,15 +219,15 @@ namespace StadtLandFussApi.Hubs
                 if (answer.Downvotes > ((users.Count + 1) / 2))
                 {
                     break;
-                } 
+                }
                 else if (users.Any(u => u.Answers != null && u.Answers.Where(a => a.Key == answer.Key && a.CategoryId == answer.CategoryId && a.Downvotes <= ((users.Count + 1) / 2)).Any(a => a.Value.ToLower() == answer.Value.ToLower())))
                 {
                     total += 5;
-                } 
+                }
                 else if (users.Any(u => u.Answers == null || !u.Answers.Any(a => a.Key == answer.Key && answer.Downvotes <= ((users.Count + 1) / 2))))
                 {
                     total += 20;
-                } 
+                }
                 else
                 {
                     total += 10;
