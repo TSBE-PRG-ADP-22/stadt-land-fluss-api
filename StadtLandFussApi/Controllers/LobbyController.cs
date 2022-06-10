@@ -41,10 +41,15 @@ namespace StadtLandFussApi.Controllers
             "Isabella",
             "Lucas",
             "Mia",
-            "Henr",
+            "Henri",
             "Evelyn",
             "Theodore",
-            "Harper"
+            "Harper",
+            "Lara",
+            "Ivan",
+            "Kevin",
+            "Olivia",
+            "Aline"
         };
 
         public LobbyController(AppDbContext context)
