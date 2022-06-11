@@ -105,6 +105,11 @@ namespace StadtLandFussApi.Controllers
         {
             var random = new Random();
             var lobby = await _context.Lobbies.FirstOrDefaultAsync(l => l.Code == id);
+
+            if (lobby is not null && lobby.Status != Status.Pending)
+            {
+                return BadRequest();
+            }
             var guid = Guid.NewGuid().ToString();
             // Create a new user without admin rights for the given lobby.
             var user = new User()
