@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  StadtLandFuss:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "8080:80"
+    build:
+      context: ../
+      dockerfile: StadtLandFussApi/Dockerfile.local

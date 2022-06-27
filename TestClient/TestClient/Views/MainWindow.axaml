@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:TestClient.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		d:DataContext="{x:Static vm:DesignData.MainWindowViewModel}"
+        x:Class="TestClient.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="TestClient">
+
+    <Panel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+        <SplitView IsPaneOpen="True"
+           DisplayMode="Inline"
+           OpenPaneLength="296">
+            <SplitView.Pane>
+                <StackPanel Margin="0,20" Spacing="10">
+                    <Button HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="160" Command="{Binding CreateLobbyCommand}">Create Lobby</Button>
+                    <TextBlock HorizontalAlignment="Center" Width="160" Text="{Binding Lobby.Id}"></TextBlock>
+                    <Button HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="160" Command="{Binding JoinLobbyCommand}">Join lobby</Button>
+                    <TextBlock HorizontalAlignment="Center" Text="{Binding Greeting}" ></TextBlock>
+                </StackPanel>
+            </SplitView.Pane>
+            <Grid>
+                <StackPanel Margin="5,20" Spacing="15" Orientation="Horizontal" VerticalAlignment="Top" >
+                    <Button HorizontalContentAlignment="Center" Width="100" Command="{Binding ConnectCommand}">Connect</Button>
+                    <Button HorizontalContentAlignment="Center" Width="100" Command="{Binding DisconnectCommand}">Disconnect</Button>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100" Text="{Binding ConnectionStatus}"></TextBlock>
+                </StackPanel>
+            </Grid>
+        </SplitView>
+    </Panel>
+</Window>
